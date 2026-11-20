@@ -9,7 +9,7 @@ EMPRESAS = ["CI&T","Zup Innovation","GFT Technologies","DBC Company","Compass UO
  "Accenture","Thoughtworks","ArcTouch","LWSA","RD Station","TOTVS","SAP","Omie","Asaas","Conta Azul",
  "VTEX","Sympla","Grupo Boticário","Natura","iFood","Dentsu"]
 CARGOS = ["product owner","product manager","business analyst","analista de negócios","PO"]
-MAX_DIAS, MIN_ADERENCIA = 2, 80
+MAX_DIAS, MIN_ADERENCIA = 7, 80
 
 # Termos do currículo, com peso (ajuste à vontade)
 TERMOS = {
