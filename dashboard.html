@@ -1,22 +1,68 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Vagas PO / PM / BA</title><style>
-:root{--bg:#f7f6f3;--fg:#1c1c1a;--mut:#6b6a64;--card:#fff;--bd:#e2e0d8;--ac:#1f6f5c}
-@media(prefers-color-scheme:dark){:root{--bg:#161614;--fg:#eceae3;--mut:#9a988f;--card:#201f1c;--bd:#33312c;--ac:#5fc4a8}}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
+:root{--bg:#f7f6f3;--fg:#1c1c1a;--mut:#6b6a64;--card:#fff;--bd:#e2e0d8;--ac:#1f6f5c;--chip:#ecebe5}
+@media(prefers-color-scheme:dark){:root{--bg:#161614;--fg:#eceae3;--mut:#9a988f;--card:#201f1c;--bd:#33312c;--ac:#5fc4a8;--chip:#2a2926}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
 main{max-width:920px;margin:0 auto;padding:32px 16px}h1{margin:0 0 4px;font-size:26px}
-.mut{color:var(--mut);font-size:14px}.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px;margin:12px 0}
-.row{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
-.score{font-weight:700;color:var(--ac);font-size:22px}a{color:var(--ac)}
-.links{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:14px}</style></head><body><main>
+.mut{color:var(--mut);font-size:14px}a{color:var(--ac)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 8px}
+.chip{border:1px solid var(--bd);background:var(--chip);color:var(--fg);border-radius:999px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--ac);border-color:var(--ac);color:var(--bg);font-weight:600}
+.card{background:var(--card);border:1px solid var(--bd);border-left:5px solid var(--st,var(--bd));border-radius:12px;padding:16px;margin:12px 0}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.score{font-weight:700;color:var(--ac);font-size:22px}
+.foot{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:12px}
+select{font:inherit;font-size:14px;padding:6px 8px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--fg)}
+.tag{font-size:12px;border:1px solid var(--bd);border-radius:6px;padding:1px 6px;color:var(--mut)}
+.btn{font:inherit;font-size:14px;border:1px solid var(--bd);background:var(--chip);color:var(--fg);border-radius:8px;padding:6px 12px;cursor:pointer}
+.links{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:14px}.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
+</style></head><body><main>
 <h1>Vagas PO / PM / Business Analyst</h1>
-<div class="mut" id="meta"></div><div id="lista"></div>
+<div class="mut" id="meta"></div>
+<div class="chips" id="chips" role="group" aria-label="Filtrar por status"></div>
+<div id="lista"></div>
+<div class="tools"><button class="btn" id="exp">Exportar backup</button>
+<label class="btn">Importar backup<input type="file" id="imp" accept="application/json" hidden></label></div>
+<p class="mut">Seus status ficam salvos neste navegador. Para usar em outro computador, exporte o backup e importe lá.</p>
 <h2 style="font-size:18px;margin-top:32px">Páginas de carreira (conferência manual)</h2><div class="links"><a href="https://ciandt.com/br/pt-br/carreiras" target="_blank" rel="noopener">CI&T</a><a href="https://zup.gupy.io" target="_blank" rel="noopener">Zup Innovation</a><a href="https://www.gft.com/br/pt/careers" target="_blank" rel="noopener">GFT Technologies</a><a href="https://dbccompany.gupy.io" target="_blank" rel="noopener">DBC Company</a><a href="https://compassuol.gupy.io" target="_blank" rel="noopener">Compass UOL</a><a href="https://stefanini.gupy.io" target="_blank" rel="noopener">Stefanini</a><a href="https://www.accenture.com/br-pt/careers/jobsearch" target="_blank" rel="noopener">Accenture</a><a href="https://www.thoughtworks.com/pt-br/careers/jobs" target="_blank" rel="noopener">Thoughtworks</a><a href="https://arctouch.com/careers" target="_blank" rel="noopener">ArcTouch</a><a href="https://lwsa.gupy.io" target="_blank" rel="noopener">LWSA</a><a href="https://carreiras.totvs.com" target="_blank" rel="noopener">RD Station (TOTVS)</a><a href="https://jobs.sap.com/go/SAP-Jobs-in-Brazil/" target="_blank" rel="noopener">SAP</a><a href="https://omie.gupy.io" target="_blank" rel="noopener">Omie</a><a href="https://asaas.gupy.io" target="_blank" rel="noopener">Asaas</a><a href="https://contaazul.gupy.io" target="_blank" rel="noopener">Conta Azul</a><a href="https://vtex.com/br-pt/carreiras/" target="_blank" rel="noopener">VTEX</a><a href="https://sympla.gupy.io" target="_blank" rel="noopener">Sympla</a><a href="https://boticario.gupy.io" target="_blank" rel="noopener">Grupo Boticário</a><a href="https://naturaeco.gupy.io" target="_blank" rel="noopener">Natura &Co</a><a href="https://carreiras.ifood.com.br" target="_blank" rel="noopener">iFood</a><a href="https://www.dentsu.com/br/pt/careers" target="_blank" rel="noopener">Dentsu</a></div>
 </main><script>
-const D=/*JOBS*/{"atualizado": "20/11/2026 17:51", "vagas": [{"empresa": "Omie", "titulo": "Product Manager ", "local": "—", "publicada": "2026-11-18T20:19:38.705000+00:00", "aderencia": 100, "link": "https://carreirasomie.gupy.io/job/eyJqb2JJZCI6MTI4ODM1MTcsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal"}, {"empresa": "Grupo Boticário", "titulo": "Associate Product Manager III - Assuntos Corporativos - ESG Social (Vaga Afirmativa para PcD)", "local": "—", "publicada": "2026-10-29T18:28:54.307000+00:00", "aderencia": 100, "link": "https://grupoboticario.gupy.io/job/eyJqb2JJZCI6MTI3OTY1MDAsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal"}, {"empresa": "Grupo Boticário", "titulo": "Product Manager - Especialista I (Tech Colaborador)", "local": "—", "publicada": "2026-11-09T12:25:21.144000+00:00", "aderencia": 88, "link": "https://grupoboticario.gupy.io/job/eyJqb2JJZCI6MTI4MTEzNTEsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal"}, {"empresa": "Asaas", "titulo": "Product Manager - Prevenção a fraudes (emissão e adquirência)", "local": "—", "publicada": "2026-11-04T14:14:48.632000+00:00", "aderencia": 88, "link": "https://asaas.gupy.io/job/eyJqb2JJZCI6MTI0NjM1NTEsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal"}, {"empresa": "Grupo Boticário", "titulo": "Product Manager - Especialista II (Motores de Decisão e Antifraude)", "local": "—", "publicada": "2026-11-03T14:31:37.241000+00:00", "aderencia": 88, "link": "https://grupoboticario.gupy.io/job/eyJqb2JJZCI6MTI3OTg5MDcsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal"}, {"empresa": "Dentsu", "titulo": "Product Manager [Digital Product Engineering]", "local": "—", "publicada": "2026-10-26T15:07:38.644000+00:00", "aderencia": 88, "link": "https://dwsbrazil.gupy.io/job/eyJqb2JJZCI6MTI3ODI3MTgsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal"}, {"empresa": "Stefanini", "titulo": "Product Owner - Temporário", "local": "—", "publicada": "2026-11-12T20:52:51.576000+00:00", "aderencia": 80, "link": "https://gaugecarreiras.gupy.io/job/eyJqb2JJZCI6MTI4ODI5NjEsInNvdXJjZSI6Imd1cHlfcG9ydGFsIn0=?jobBoardSource=gupy_portal"}]}/*END*/;
-document.getElementById("meta").textContent="Aderência ≥ 80% · publicadas há até 30 dias · atualizado: "+D.atualizado;
-const L=document.getElementById("lista");
-if(!D.vagas.length)L.innerHTML='<div class="card mut">Nenhuma vaga encontrada com os critérios.</div>';
-D.vagas.forEach(v=>{const d=document.createElement("div");d.className="card";
-d.innerHTML=`<div class="row"><div><strong></strong><div class="mut"></div></div><div class="score">${v.aderencia}%</div></div><a target="_blank" rel="noopener">Ver vaga →</a>`;
-d.querySelector("strong").textContent=v.titulo;d.querySelector(".mut").textContent=v.empresa+" · "+v.local+" · "+new Date(v.publicada).toLocaleString("pt-BR");
-d.querySelector("a").href=v.link;L.appendChild(d)});</script></body></html>
+const D=/*JOBS*/{"atualizado":"nunca (script ainda não rodou)","vagas":[]}/*END*/;
+document.getElementById("meta").textContent="Aderência ≥ 80% · publicadas há até 2 dias · atualizado: "+D.atualizado;
+const STATUS=[["nova","Nova","#9a988f"],["apliquei","Apliquei","#2f6fdb"],["entrevista","Entrevista","#8a4fd3"],["teste","Teste","#d98a00"],["proposta","Proposta","#1f8a5c"],["descartei","Descartei","#c24141"]];
+const COR=Object.fromEntries(STATUS.map(s=>[s[0],s[2]])),NOME=Object.fromEntries(STATUS.map(s=>[s[0],s[1]]));
+const KEY="vagas_status_v1";let store={};
+try{store=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){store={}}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}};
+let filtro="ativas";
+function itens(){
+ const m=new Map();
+ D.vagas.forEach(v=>m.set(v.link,{v,status:(store[v.link]||{}).status||"nova",atual:true}));
+ Object.entries(store).forEach(([l,r])=>{if(!m.has(l)&&r.vaga)m.set(l,{v:r.vaga,status:r.status,atual:false})});
+ return [...m.values()];
+}
+function passa(i){return filtro==="ativas"?i.status!=="descartei":filtro==="todas"?true:i.status===filtro}
+function chips(all){
+ const c=document.getElementById("chips");c.innerHTML="";
+ const defs=[["ativas","Ativas",all.filter(i=>i.status!=="descartei").length],...STATUS.map(s=>[s[0],s[1],all.filter(i=>i.status===s[0]).length]),["todas","Todas",all.length]];
+ defs.forEach(([k,n,q])=>{const b=document.createElement("button");b.className="chip";b.setAttribute("aria-pressed",filtro===k);b.textContent=`${n} (${q})`;b.onclick=()=>{filtro=k;render()};c.appendChild(b)});
+}
+function render(){
+ const all=itens().sort((a,b)=>b.v.aderencia-a.v.aderencia);chips(all);
+ const L=document.getElementById("lista");L.innerHTML="";
+ const vis=all.filter(passa);
+ if(!vis.length)L.innerHTML='<div class="card mut">Nenhuma vaga neste filtro.</div>';
+ vis.forEach(({v,status,atual})=>{
+  const d=document.createElement("div");d.className="card";d.style.setProperty("--st",COR[status]);
+  d.innerHTML=`<div class="row"><div><strong></strong><div class="mut"></div></div><div class="score">${v.aderencia}%</div></div>
+  <div class="foot"><a target="_blank" rel="noopener">Ver vaga →</a><select aria-label="Status da vaga"></select><span class="tag" hidden>fora da busca atual</span></div>`;
+  d.querySelector("strong").textContent=v.titulo;
+  d.querySelector(".mut").textContent=v.empresa+" · "+v.local+" · publicada em "+new Date(v.publicada).toLocaleDateString("pt-BR");
+  d.querySelector("a").href=v.link;d.querySelector(".tag").hidden=atual;
+  const sel=d.querySelector("select");
+  STATUS.forEach(([k,n])=>{const o=document.createElement("option");o.value=k;o.textContent=n;o.selected=k===status;sel.appendChild(o)});
+  sel.onchange=()=>{if(sel.value==="nova")delete store[v.link];else store[v.link]={status:sel.value,vaga:v,em:new Date().toISOString()};save();render()};
+  L.appendChild(d)});
+}
+document.getElementById("exp").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(store,null,1)],{type:"application/json"}));a.download="vagas-status.json";a.click()};
+document.getElementById("imp").onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{Object.assign(store,JSON.parse(t));save();render()}catch(x){alert("Arquivo inválido")}})};
+render();</script></body></html>
