@@ -26,8 +26,8 @@ TERMOS = {
  "api":2,"integra":2,"stakeholder":2,"métricas":1,"ia generativa":2,"genai":2,"ágil":2,"agile":2,
  "requisitos":2,"squad":1,"cspo":1,
 }
-BASES = ["https://portal.api.gupy.io/api/v1/jobs", "https://portal.api.gupy.io/api/job"]
-HDR = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36", "Accept": "application/json"}
+BASES = ["https://portal.gupy.io/api/job-search/jobs", "https://employability-portal.gupy.io/api/v1/jobs", "https://portal.api.gupy.io/api/v1/jobs"]
+HDR = {"Referer": "https://portal.gupy.io/", "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36", "Accept": "application/json"}
 erros = {"n": 0, "ok": 0, "amostra": None}
 
 def http(url, json_=True):
@@ -76,6 +76,7 @@ def main():
     base_ok = None
     for cargo in CARGOS:
         for base in ([base_ok] if base_ok else BASES):
+            sem_recentes = 0
             for off in range(0, 1000, 100):
                 dados = pagina(base, cargo, off)
                 if dados is None: break
@@ -91,7 +92,8 @@ def main():
                     emp = empresa_alvo(v)
                     if emp and pub >= limite and TITULO_OK.search(v.get("name") or ""):
                         cand[vid] = (v, emp, pub)
-                if novas_recentes == 0: break  # lista ordenada por data: o resto é mais antigo
+                sem_recentes = 0 if novas_recentes else sem_recentes + 1
+                if sem_recentes >= 3: break  # 3 páginas seguidas sem vaga recente: para
             if base_ok: break
     final = []
     for vid, (v, emp, pub) in cand.items():
