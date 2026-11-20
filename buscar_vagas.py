@@ -29,6 +29,7 @@ TERMOS = {
 BASES = ["https://portal.gupy.io/api/job-search/jobs", "https://employability-portal.gupy.io/api/v1/jobs", "https://portal.api.gupy.io/api/v1/jobs"]
 HDR = {"Referer": "https://portal.gupy.io/", "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36", "Accept": "application/json"}
 erros = {"n": 0, "ok": 0, "amostra": None}
+stats = {"pag": [], "recentes": 0, "alvo_qualquer_data": 0, "empresas": {}}
 
 def http(url, json_=True):
     try:
@@ -45,6 +46,8 @@ def pagina(base, cargo, offset):
     q = urllib.parse.urlencode({"jobName": cargo, "name": cargo, "limit": 100, "offset": offset,
                                 "sortBy": "publishedDate", "sortOrder": "desc"})
     d = http(f"{base}?{q}")
+    if d and d.get("pagination") is not None and offset == 0:
+        stats["pag"].append((cargo, d.get("pagination")))
     return (d or {}).get("data") if d else None
 
 def parse_data(s):
@@ -87,7 +90,12 @@ def main():
                     vid = v.get("id") or v.get("jobId")
                     pub = parse_data(v.get("publishedDate"))
                     if not vid or not pub: continue
-                    vistas[vid] = 1
+                    if vid not in vistas:
+                        vistas[vid] = 1
+                        nome_emp = v.get("careerPageName") or v.get("companyName") or "?"
+                        stats["empresas"][nome_emp] = stats["empresas"].get(nome_emp, 0) + 1
+                        if pub >= limite: stats["recentes"] += 1
+                        if empresa_alvo(v): stats["alvo_qualquer_data"] += 1
                     if pub >= limite: novas_recentes += 1
                     emp = empresa_alvo(v)
                     if emp and pub >= limite and TITULO_OK.search(v.get("name") or ""):
@@ -107,6 +115,10 @@ def main():
     print(f"Requisições ok: {erros['ok']} | falhas: {erros['n']} | vagas lidas: {len(vistas)} | "
           f"das empresas-alvo e recentes: {len(cand)} | com aderência >= {MIN_ADERENCIA}%: {len(final)}")
     if erros["amostra"]: print("Exemplo de falha:", erros["amostra"])
+    print(f"Diagnóstico: recentes (qualquer empresa): {stats['recentes']} | das empresas-alvo (qualquer data): {stats['alvo_qualquer_data']}")
+    for c, pg in stats["pag"]: print("Paginação", c, "->", pg)
+    top = sorted(stats["empresas"].items(), key=lambda x: -x[1])[:15]
+    print("Empresas mais frequentes:", "; ".join(f"{n} ({q})" for n, q in top))
     pasta = pathlib.Path(__file__).parent
     f = pasta / "dashboard.html"; tpl = f.read_text(encoding="utf-8")
     dados = json.dumps({"atualizado": agora, "vagas": final}, ensure_ascii=False)
