@@ -1,55 +1,90 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Vagas PO / PM / BA</title>
-	<link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" href="icon-192.png"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#1f6f5c">
-	<style>
+<title>Vagas PO / PM / BA</title><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" href="icon-192.png"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#1f6f5c"><style>
 :root{--bg:#f7f6f3;--fg:#1c1c1a;--mut:#6b6a64;--card:#fff;--bd:#e2e0d8;--ac:#1f6f5c;--chip:#ecebe5}
 @media(prefers-color-scheme:dark){:root{--bg:#161614;--fg:#eceae3;--mut:#9a988f;--card:#201f1c;--bd:#33312c;--ac:#5fc4a8;--chip:#2a2926}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}
-main{max-width:920px;margin:0 auto;padding:32px 16px}h1{margin:0 0 4px;font-size:26px}
+.layout{display:flex;min-height:100vh}
+aside{width:250px;flex:none;background:var(--card);border-right:1px solid var(--bd);padding:16px;position:sticky;top:0;height:100vh;overflow:auto}
+body.fechado aside{display:none}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.item{display:flex;justify-content:space-between;align-items:center;width:100%;gap:8px;text-align:left;border:0;background:transparent;color:var(--fg);font:inherit;font-size:15px;padding:9px 10px;border-radius:8px;cursor:pointer;border-left:4px solid var(--c,transparent)}
+.item:hover{background:var(--chip)}
+.item[aria-pressed=true]{background:var(--ac);color:var(--bg);font-weight:600}
+.item .n{font-variant-numeric:tabular-nums;opacity:.85}
+.sep{height:1px;background:var(--bd);margin:12px 0}
+.ib{border:1px solid var(--bd);background:var(--chip);color:var(--fg);border-radius:8px;padding:6px 10px;font:inherit;font-size:14px;cursor:pointer}
+main{flex:1;min-width:0;max-width:920px;padding:24px 16px 32px;margin:0 auto}
+.top{display:flex;gap:12px;align-items:center;margin-bottom:8px}
+h1{margin:0;font-size:24px;line-height:1.25}
 .mut{color:var(--mut);font-size:14px}a{color:var(--ac)}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 8px}
-.chip{border:1px solid var(--bd);background:var(--chip);color:var(--fg);border-radius:999px;padding:6px 12px;font:inherit;font-size:14px;cursor:pointer}
-.chip[aria-pressed=true]{background:var(--ac);border-color:var(--ac);color:var(--bg);font-weight:600}
 .card{background:var(--card);border:1px solid var(--bd);border-left:5px solid var(--st,var(--bd));border-radius:12px;padding:16px;margin:12px 0}
 .row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
 .score{font-weight:700;color:var(--ac);font-size:22px}
 .foot{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:12px}
 select{font:inherit;font-size:14px;padding:6px 8px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--fg)}
 .tag{font-size:12px;border:1px solid var(--bd);border-radius:6px;padding:1px 6px;color:var(--mut)}
-.btn{font:inherit;font-size:14px;border:1px solid var(--bd);background:var(--chip);color:var(--fg);border-radius:8px;padding:6px 12px;cursor:pointer}
-.links{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:14px}.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
-</style></head><body><main>
-<h1>Vagas PO / PM / Business Analyst</h1>
-<div class="mut" id="meta"></div>
-<div class="chips" id="chips" role="group" aria-label="Filtrar por status"></div>
-<div id="lista"></div>
-<div class="tools"><button class="btn" id="exp">Exportar backup</button>
-<label class="btn">Importar backup<input type="file" id="imp" accept="application/json" hidden></label></div>
-<p class="mut">Seus status ficam salvos neste navegador. Para usar em outro computador, exporte o backup e importe lá.</p>
-<h2 style="font-size:18px;margin-top:32px">Páginas de carreira (conferência manual)</h2><div class="links"><a href="https://ciandt.com/br/pt-br/carreiras" target="_blank" rel="noopener">CI&T</a><a href="https://zup.gupy.io" target="_blank" rel="noopener">Zup Innovation</a><a href="https://www.gft.com/br/pt/careers" target="_blank" rel="noopener">GFT Technologies</a><a href="https://dbccompany.gupy.io" target="_blank" rel="noopener">DBC Company</a><a href="https://compassuol.gupy.io" target="_blank" rel="noopener">Compass UOL</a><a href="https://stefanini.gupy.io" target="_blank" rel="noopener">Stefanini</a><a href="https://www.accenture.com/br-pt/careers/jobsearch" target="_blank" rel="noopener">Accenture</a><a href="https://www.thoughtworks.com/pt-br/careers/jobs" target="_blank" rel="noopener">Thoughtworks</a><a href="https://arctouch.com/careers" target="_blank" rel="noopener">ArcTouch</a><a href="https://lwsa.gupy.io" target="_blank" rel="noopener">LWSA</a><a href="https://carreiras.totvs.com" target="_blank" rel="noopener">RD Station (TOTVS)</a><a href="https://jobs.sap.com/go/SAP-Jobs-in-Brazil/" target="_blank" rel="noopener">SAP</a><a href="https://omie.gupy.io" target="_blank" rel="noopener">Omie</a><a href="https://asaas.gupy.io" target="_blank" rel="noopener">Asaas</a><a href="https://contaazul.gupy.io" target="_blank" rel="noopener">Conta Azul</a><a href="https://vtex.com/br-pt/carreiras/" target="_blank" rel="noopener">VTEX</a><a href="https://sympla.gupy.io" target="_blank" rel="noopener">Sympla</a><a href="https://boticario.gupy.io" target="_blank" rel="noopener">Grupo Boticário</a><a href="https://naturaeco.gupy.io" target="_blank" rel="noopener">Natura &Co</a><a href="https://carreiras.ifood.com.br" target="_blank" rel="noopener">iFood</a><a href="https://www.dentsu.com/br/pt/careers" target="_blank" rel="noopener">Dentsu</a></div>
-</main><script>
-const D=/*JOBS*/{"atualizado": "21/11/2026 08:51", "vagas": []}/*END*/;
+.links{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:14px}
+#scrim{display:none}
+@media(max-width:760px){
+ aside{position:fixed;left:0;top:0;z-index:20;box-shadow:4px 0 24px rgba(0,0,0,.25);width:min(280px,85vw)}
+ body:not(.fechado) #scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:10}
+}
+</style></head><body class="fechado"><div class="layout">
+<aside id="side" aria-label="Filtros e ferramentas">
+ <div class="sh"><strong>Status</strong><button class="ib" id="fechar" aria-label="Recolher menu">« Recolher</button></div>
+ <nav id="chips" aria-label="Filtrar por status"></nav>
+ <div class="sep"></div>
+ <button class="item" id="exp">Exportar backup</button>
+ <label class="item" style="cursor:pointer">Importar backup<input type="file" id="imp" accept="application/json" hidden></label>
+ <p class="mut" style="padding:0 10px;font-size:13px">Os status ficam salvos neste navegador. Para levar a outro aparelho, exporte e importe o backup.</p>
+</aside><div id="scrim"></div>
+<main>
+ <div class="top"><button class="ib" id="abrir" aria-label="Abrir menu" aria-expanded="false">☰ Filtros</button></div>
+ <h1>Vagas PO / PM / Business Analyst</h1>
+ <div class="mut" id="meta"></div><div class="mut" id="filtro" style="margin-top:2px"></div>
+ <div id="lista"></div>
+ <h2 style="font-size:18px;margin-top:32px">Páginas de carreira (conferência manual)</h2><div class="links"><a href="https://ciandt.com/br/pt-br/carreiras" target="_blank" rel="noopener">CI&T</a><a href="https://zup.gupy.io" target="_blank" rel="noopener">Zup Innovation</a><a href="https://www.gft.com/br/pt/careers" target="_blank" rel="noopener">GFT Technologies</a><a href="https://dbccompany.gupy.io" target="_blank" rel="noopener">DBC Company</a><a href="https://compassuol.gupy.io" target="_blank" rel="noopener">Compass UOL</a><a href="https://stefanini.gupy.io" target="_blank" rel="noopener">Stefanini</a><a href="https://www.accenture.com/br-pt/careers/jobsearch" target="_blank" rel="noopener">Accenture</a><a href="https://www.thoughtworks.com/pt-br/careers/jobs" target="_blank" rel="noopener">Thoughtworks</a><a href="https://arctouch.com/careers" target="_blank" rel="noopener">ArcTouch</a><a href="https://lwsa.gupy.io" target="_blank" rel="noopener">LWSA</a><a href="https://carreiras.totvs.com" target="_blank" rel="noopener">RD Station (TOTVS)</a><a href="https://jobs.sap.com/go/SAP-Jobs-in-Brazil/" target="_blank" rel="noopener">SAP</a><a href="https://omie.gupy.io" target="_blank" rel="noopener">Omie</a><a href="https://asaas.gupy.io" target="_blank" rel="noopener">Asaas</a><a href="https://contaazul.gupy.io" target="_blank" rel="noopener">Conta Azul</a><a href="https://vtex.com/br-pt/carreiras/" target="_blank" rel="noopener">VTEX</a><a href="https://sympla.gupy.io" target="_blank" rel="noopener">Sympla</a><a href="https://boticario.gupy.io" target="_blank" rel="noopener">Grupo Boticário</a><a href="https://naturaeco.gupy.io" target="_blank" rel="noopener">Natura &Co</a><a href="https://carreiras.ifood.com.br" target="_blank" rel="noopener">iFood</a><a href="https://www.dentsu.com/br/pt/careers" target="_blank" rel="noopener">Dentsu</a></div>
+</main></div><script>
+const D=/*JOBS*/{"atualizado":"nunca (script ainda não rodou)","vagas":[]}/*END*/;
 document.getElementById("meta").textContent="Aderência ≥ 80% · publicadas há até 2 dias · atualizado: "+D.atualizado;
 const STATUS=[["nova","Nova","#9a988f"],["apliquei","Apliquei","#2f6fdb"],["entrevista","Entrevista","#8a4fd3"],["teste","Teste","#d98a00"],["proposta","Proposta","#1f8a5c"],["descartei","Descartei","#c24141"]];
-const COR=Object.fromEntries(STATUS.map(s=>[s[0],s[2]])),NOME=Object.fromEntries(STATUS.map(s=>[s[0],s[1]]));
-const KEY="vagas_status_v1";let store={};
+const COR=Object.fromEntries(STATUS.map(s=>[s[0],s[2]]));
+const KEY="vagas_status_v1",MKEY="vagas_menu_v1";let store={};
 try{store=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){store={}}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}};
-let filtro="ativas";
+let filtro="ativas",nomeFiltro="Ativas";
+const mobile=()=>matchMedia("(max-width:760px)").matches;
+function menu(abrir,lembrar){
+ document.body.classList.toggle("fechado",!abrir);
+ document.getElementById("abrir").setAttribute("aria-expanded",abrir);
+ if(lembrar&&!mobile()){try{localStorage.setItem(MKEY,abrir?"1":"0")}catch(e){}}
+}
+let ini=true;try{ini=localStorage.getItem(MKEY)!=="0"}catch(e){}
+menu(!mobile()&&ini,false);
+document.getElementById("abrir").onclick=()=>menu(true,true);
+document.getElementById("fechar").onclick=()=>menu(false,true);
+document.getElementById("scrim").onclick=()=>menu(false,false);
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&mobile())menu(false,false)});
 function itens(){
  const m=new Map();
  D.vagas.forEach(v=>m.set(v.link,{v,status:(store[v.link]||{}).status||"nova",atual:true}));
  Object.entries(store).forEach(([l,r])=>{if(!m.has(l)&&r.vaga)m.set(l,{v:r.vaga,status:r.status,atual:false})});
  return [...m.values()];
 }
-function passa(i){return filtro==="ativas"?i.status!=="descartei":filtro==="todas"?true:i.status===filtro}
+const passa=i=>filtro==="ativas"?i.status!=="descartei":filtro==="todas"?true:i.status===filtro;
 function chips(all){
  const c=document.getElementById("chips");c.innerHTML="";
- const defs=[["ativas","Ativas",all.filter(i=>i.status!=="descartei").length],...STATUS.map(s=>[s[0],s[1],all.filter(i=>i.status===s[0]).length]),["todas","Todas",all.length]];
- defs.forEach(([k,n,q])=>{const b=document.createElement("button");b.className="chip";b.setAttribute("aria-pressed",filtro===k);b.textContent=`${n} (${q})`;b.onclick=()=>{filtro=k;render()};c.appendChild(b)});
+ const defs=[["ativas","Ativas",all.filter(i=>i.status!=="descartei").length,null],...STATUS.map(s=>[s[0],s[1],all.filter(i=>i.status===s[0]).length,s[2]]),["todas","Todas",all.length,null]];
+ defs.forEach(([k,n,q,cor])=>{
+  const b=document.createElement("button");b.className="item";b.setAttribute("aria-pressed",filtro===k);
+  if(cor)b.style.setProperty("--c",cor);
+  b.innerHTML='<span></span><span class="n"></span>';b.children[0].textContent=n;b.children[1].textContent=q;
+  if(filtro===k)nomeFiltro=n;
+  b.onclick=()=>{filtro=k;render();if(mobile())menu(false,false)};c.appendChild(b)});
 }
 function render(){
  const all=itens().sort((a,b)=>b.v.aderencia-a.v.aderencia);chips(all);
+ document.getElementById("filtro").textContent="Filtro: "+nomeFiltro;
  const L=document.getElementById("lista");L.innerHTML="";
  const vis=all.filter(passa);
  if(!vis.length)L.innerHTML='<div class="card mut">Nenhuma vaga neste filtro.</div>';
