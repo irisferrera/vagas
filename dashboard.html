@@ -6,11 +6,11 @@
 .appbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top));background:linear-gradient(135deg,#1f6f5c,#144d40);color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.18)}
 .appbar .mb{border:0;background:rgba(255,255,255,.14);color:#fff;border-radius:10px;width:40px;height:40px;font-size:20px;cursor:pointer;flex:none}
 .appbar .mb:hover{background:rgba(255,255,255,.24)}
-.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1 1 auto}
 .brand img{width:36px;height:36px;border-radius:9px;flex:none;box-shadow:0 0 0 2px rgba(255,255,255,.25)}
-.brand b{display:block;font-size:18px;line-height:1.15;letter-spacing:.2px}
+.brand b{display:block;font-size:18px;line-height:1.15;letter-spacing:.2px;white-space:nowrap}
 .brand small{display:block;font-size:12px;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pill{margin-left:auto;flex:none;font-size:12px;background:rgba(255,255,255,.16);border-radius:999px;padding:5px 10px;white-space:nowrap}
+.pill{margin-left:auto;flex:0 1 auto;min-width:0;max-width:46%;font-size:12px;background:rgba(255,255,255,.16);border-radius:999px;padding:5px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 16px}
 .stat{text-align:left;font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;cursor:pointer}
 .stat:hover{border-color:var(--ac)}
@@ -38,10 +38,12 @@ select{font:inherit;font-size:14px;padding:6px 8px;border-radius:8px;border:1px 
 .links{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:14px}
 #scrim{display:none}
 @media(max-width:760px){
- .brand small{display:none}.pill{font-size:11px;padding:4px 8px}.stat .v{font-size:22px}.stat{padding:10px 12px}
+ .brand small{display:none}.pill{font-size:11px;padding:4px 8px}.pf{display:none}.stat .v{font-size:22px}.stat{padding:10px 12px}
  aside{position:fixed;left:0;top:60px;height:calc(100vh - 60px);z-index:20;box-shadow:4px 0 24px rgba(0,0,0,.25);width:min(280px,85vw)}
  body:not(.fechado) #scrim{display:block;position:fixed;inset:60px 0 0 0;background:rgba(0,0,0,.4);z-index:10}
 }
+@media(max-width:380px){.pill{display:none}.brand b{font-size:17px}}
+.brand b{overflow:hidden;text-overflow:ellipsis}
 </style></head><body class="fechado">
 <header class="appbar">
  <button class="mb" id="abrir" aria-label="Abrir ou fechar menu" aria-expanded="false">☰</button>
@@ -66,7 +68,8 @@ select{font:inherit;font-size:14px;padding:6px 8px;border-radius:8px;border:1px 
 </main></div><script>
 const D=/*JOBS*/{"atualizado":"nunca (script ainda não rodou)","vagas":[]}/*END*/;
 document.getElementById("meta").textContent="Aderência ≥ 80% · publicadas há até 2 dias · atualizado: "+D.atualizado;
-document.getElementById("pill").textContent="Atualizado "+D.atualizado.replace(/^(\d+\/\d+)\/\d+ /,"$1 ");
+{const m=/^(\d+\/\d+)\/\d+ (\d+:\d+)/.exec(D.atualizado),pl=document.getElementById("pill");
+ if(m){pl.innerHTML='<span class="pf">Atualizado </span>';pl.append(m[1]+" "+m[2])}else pl.textContent="Sem dados ainda"}
 const STATUS=[["nova","Nova","#9a988f"],["apliquei","Apliquei","#2f6fdb"],["entrevista","Entrevista","#8a4fd3"],["teste","Teste","#d98a00"],["proposta","Proposta","#1f8a5c"],["descartei","Descartei","#c24141"]];
 const COR=Object.fromEntries(STATUS.map(s=>[s[0],s[2]]));
 const KEY="vagas_status_v1",MKEY="vagas_menu_v1";let store={};
