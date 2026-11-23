@@ -4,7 +4,7 @@ publicadas há <= MAX_DIAS dias e com aderência >= MIN_ADERENCIA ao currículo 
 Regenera dashboard.html. Falha (exit 1) se a API não responder, para o GitHub ficar vermelho."""
 import json, re, sys, html, pathlib, datetime as dt, urllib.parse, urllib.request
 
-MAX_DIAS, MIN_ADERENCIA = 2, 80
+MAX_DIAS, MIN_ADERENCIA = 12, 80
 
 # nome exibido -> regex para casar com o nome da empresa/página de carreira no Gupy
 EMPRESAS = {
@@ -108,6 +108,38 @@ def lever(slug, nome, limite):
     print(f"Lever {nome}: vagas lidas {lidas} | recentes {recentes} | cargo e Brasil {cargo_br} | com aderência >= {MIN_ADERENCIA}%: {len(achadas)}")
     return achadas
 
+# Empresas no Greenhouse (API pública, sem login): nome exibido -> tokens dos quadros em job-boards.greenhouse.io/<token>
+GREENHOUSE = {"iFood": ["ifoodcarreiras", "ifoodcampanhas"], "Zup Innovation": ["zupinnovation"],
+              "Thoughtworks": ["thoughtworks"], "VTEX": ["vtex"], "Asaas": ["asaas"], "Sympla": ["sympla"]}
+GREENHOUSE_NAO_CONFIRMADOS = {"thoughtworks", "vtex", "asaas", "sympla"}  # tokens que eu não consegui confirmar; o log diz se existem
+
+def greenhouse(token, nome, limite):
+    d = http(f"https://boards-api.greenhouse.io/v1/boards/{token}/jobs?content=true")
+    if not isinstance(d, dict) or "jobs" not in d:
+        print(f"Greenhouse {nome} ({token}): quadro não encontrado ou sem resposta")
+        return []
+    lidas = recentes = cargo_br = 0; achadas = []
+    for v in d["jobs"]:
+        lidas += 1
+        data = v.get("first_published") or v.get("updated_at")
+        if not data: continue
+        try: pub = dt.datetime.fromisoformat(data.replace("Z", "+00:00"))
+        except ValueError: continue
+        if pub.tzinfo is None: pub = pub.replace(tzinfo=dt.timezone.utc)
+        if pub < limite: continue
+        recentes += 1
+        titulo = v.get("title") or ""; local = (v.get("location") or {}).get("name", "")
+        if not TITULO_OK.search(titulo): continue
+        if not BRASIL.search(f"{local} {titulo}"): continue
+        cargo_br += 1
+        texto = re.sub(r"<[^>]+>", " ", html.unescape(html.unescape(v.get("content") or "")))
+        nota = aderencia({"name": titulo, "jobUrl": v.get("absolute_url", ""), "description": texto})
+        if nota >= MIN_ADERENCIA:
+            achadas.append({"empresa": nome, "titulo": titulo, "local": local or "—", "publicada": pub.isoformat(),
+                            "aderencia": nota, "link": v.get("absolute_url", "")})
+    print(f"Greenhouse {nome} ({token}): lidas {lidas} | recentes {recentes} | cargo e Brasil {cargo_br} | >= {MIN_ADERENCIA}%: {len(achadas)}")
+    return achadas
+
 def main():
     limite = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=MAX_DIAS)
     vistas, cand = {}, {}
@@ -147,6 +179,8 @@ def main():
               "publicada": pub.isoformat(), "aderencia": nota, "link": v.get("jobUrl", "")})
     for nome_l, slug_l in LEVER_SITES.items():
         final.extend(lever(slug_l, nome_l, limite))
+    for nome_g, tokens in GREENHOUSE.items():
+        for tk in tokens: final.extend(greenhouse(tk, nome_g, limite))
     unicos = {}
     for x in final: unicos.setdefault(x["link"] or x["titulo"], x)
     final = sorted(unicos.values(), key=lambda x: -x["aderencia"])
