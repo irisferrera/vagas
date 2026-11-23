@@ -4,7 +4,7 @@ publicadas há <= MAX_DIAS dias e com aderência >= MIN_ADERENCIA ao currículo 
 Regenera dashboard.html. Falha (exit 1) se a API não responder, para o GitHub ficar vermelho."""
 import json, re, sys, html, pathlib, datetime as dt, urllib.parse, urllib.request
 
-MAX_DIAS, MIN_ADERENCIA = 60, 60
+MAX_DIAS, MIN_ADERENCIA = 2, 80
 
 # nome exibido -> regex para casar com o nome da empresa/página de carreira no Gupy
 EMPRESAS = {
@@ -73,13 +73,19 @@ def empresa_alvo(v):
         if re.search(rx, nome): return exibir
     return None
 
+DEBUG = True  # mostra no log as vagas descartadas e o motivo (título, local ou nota)
 # Empresas que publicam vagas no Lever (API pública, sem login): nome exibido -> "site" no jobs.lever.co/<site>
 LEVER_SITES = {"CI&T": "ciandt"}
-BRASIL = re.compile(r"brazil|brasil|\bbr\b|latam|s[ãa]o paulo|florian[óo]polis|curitiba|campinas|porto alegre|belo horizonte|recife|bras[ií]lia|rio de janeiro|londrina|fortaleza|salvador|goi[âa]nia", re.I)
+BRASIL = re.compile(r"brazil|brasil|\bbr\b|latam|h[íi]brido|remoto|s[ãa]o paulo|\bsp\b|osasco|barueri|santo andr[ée]|s[ãa]o bernardo|guarulhos|campinas|santos|sorocaba|jundia[íi]|ribeir[ãa]o preto|florian[óo]polis|joinville|blumenau|curitiba|londrina|maring[áa]|porto alegre|belo horizonte|uberl[âa]ndia|recife|bras[ií]lia|rio de janeiro|niter[óo]i|vit[óo]ria|salvador|fortaleza|goi[âa]nia|bel[ée]m|manaus|natal|macei[óo]", re.I)
+
+def _log_rejeitadas(rej, limite=60):
+    if DEBUG and rej:
+        print(f"  Descartadas ({len(rej)}), mostrando até {limite}:")
+        for r in rej[:limite]: print("   ", r)
 
 def lever(slug, nome, limite):
     lidas = recentes = cargo_br = 0
-    achadas = []
+    achadas, rej = [], []
     for skip in range(0, 1000, 100):
         d = http(f"https://api.lever.co/v0/postings/{slug}?mode=json&limit=100&skip={skip}")
         if not isinstance(d, list) or not d: break
@@ -94,7 +100,8 @@ def lever(slug, nome, limite):
             local = ", ".join(dict.fromkeys(filter(None, [cat.get("location")] + list(cat.get("allLocations") or [])))) or ""
             titulo = v.get("text") or ""
             if not TITULO_OK.search(titulo): continue
-            if not BRASIL.search(f"{local} {titulo} {v.get('country') or ''}") and (v.get("country") or "").upper() != "BR": continue
+            if not BRASIL.search(f"{local} {titulo} {v.get('country') or ''}") and (v.get("country") or "").upper() != "BR":
+                rej.append(f"[local] {titulo} | {local}"); continue
             cargo_br += 1
             listas = " ".join(f"{l.get('text','')} {re.sub(r'<[^>]+>', ' ', l.get('content',''))}" for l in (v.get("lists") or []))
             vaga = {"name": titulo, "jobUrl": v.get("hostedUrl", ""),
@@ -104,21 +111,22 @@ def lever(slug, nome, limite):
                 achadas.append({"empresa": nome, "titulo": titulo,
                     "local": local or (v.get("workplaceType") or "—").capitalize(),
                     "publicada": pub.isoformat(), "aderencia": nota, "link": v.get("hostedUrl", "")})
+            else: rej.append(f"[nota {nota}%] {titulo} | {local}")
         if len(d) < 100: break
     print(f"Lever {nome}: vagas lidas {lidas} | recentes {recentes} | cargo e Brasil {cargo_br} | com aderência >= {MIN_ADERENCIA}%: {len(achadas)}")
+    _log_rejeitadas(rej)
     return achadas
 
 # Empresas no Greenhouse (API pública, sem login): nome exibido -> tokens dos quadros em job-boards.greenhouse.io/<token>
 GREENHOUSE = {"iFood": ["ifoodcarreiras", "ifoodcampanhas"], "Zup Innovation": ["zupinnovation"],
-              "Thoughtworks": ["thoughtworks"], "VTEX": ["vtex"], "Asaas": ["asaas"], "Sympla": ["sympla"]}
-GREENHOUSE_NAO_CONFIRMADOS = {"thoughtworks", "vtex", "asaas", "sympla"}  # tokens que eu não consegui confirmar; o log diz se existem
+              "Thoughtworks": ["thoughtworks"], "VTEX": ["vtex"]}
 
 def greenhouse(token, nome, limite):
     d = http(f"https://boards-api.greenhouse.io/v1/boards/{token}/jobs?content=true")
     if not isinstance(d, dict) or "jobs" not in d:
         print(f"Greenhouse {nome} ({token}): quadro não encontrado ou sem resposta")
         return []
-    lidas = recentes = cargo_br = 0; achadas = []
+    lidas = recentes = cargo_br = 0; achadas, rej = [], []
     for v in d["jobs"]:
         lidas += 1
         data = v.get("first_published") or v.get("updated_at")
@@ -129,15 +137,19 @@ def greenhouse(token, nome, limite):
         if pub < limite: continue
         recentes += 1
         titulo = v.get("title") or ""; local = (v.get("location") or {}).get("name", "")
-        if not TITULO_OK.search(titulo): continue
-        if not BRASIL.search(f"{local} {titulo}"): continue
+        if not TITULO_OK.search(titulo):
+            rej.append(f"[título] {titulo} | {local}"); continue
+        if not BRASIL.search(f"{local} {titulo}"):
+            rej.append(f"[local] {titulo} | {local}"); continue
         cargo_br += 1
         texto = re.sub(r"<[^>]+>", " ", html.unescape(html.unescape(v.get("content") or "")))
         nota = aderencia({"name": titulo, "jobUrl": v.get("absolute_url", ""), "description": texto})
         if nota >= MIN_ADERENCIA:
             achadas.append({"empresa": nome, "titulo": titulo, "local": local or "—", "publicada": pub.isoformat(),
                             "aderencia": nota, "link": v.get("absolute_url", "")})
+        else: rej.append(f"[nota {nota}%] {titulo} | {local}")
     print(f"Greenhouse {nome} ({token}): lidas {lidas} | recentes {recentes} | cargo e Brasil {cargo_br} | >= {MIN_ADERENCIA}%: {len(achadas)}")
+    _log_rejeitadas(rej)
     return achadas
 
 def main():
@@ -173,6 +185,7 @@ def main():
     final = []
     for vid, (v, emp, pub) in cand.items():
         nota = aderencia(v)
+        if nota < MIN_ADERENCIA and DEBUG: print(f"  Gupy descartada [nota {nota}%]: {emp} | {v.get('name')}")
         if nota >= MIN_ADERENCIA:
             final.append({"empresa": emp, "titulo": v["name"],
               "local": ", ".join(filter(None, [v.get("city"), v.get("state")])) or ("Remoto" if v.get("isRemoteWork") else "—"),
