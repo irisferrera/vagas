@@ -4,7 +4,7 @@ publicadas há <= MAX_DIAS dias e com aderência >= MIN_ADERENCIA ao currículo 
 Regenera dashboard.html. Falha (exit 1) se a API não responder, para o GitHub ficar vermelho."""
 import json, re, sys, html, pathlib, datetime as dt, urllib.parse, urllib.request
 
-MAX_DIAS, MIN_ADERENCIA = 60, 80
+MAX_DIAS, MIN_ADERENCIA = 02, 80
 
 # nome exibido -> regex para casar com o nome da empresa/página de carreira no Gupy
 EMPRESAS = {
