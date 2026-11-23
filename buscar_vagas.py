@@ -73,6 +73,41 @@ def empresa_alvo(v):
         if re.search(rx, nome): return exibir
     return None
 
+# Empresas que publicam vagas no Lever (API pública, sem login): nome exibido -> "site" no jobs.lever.co/<site>
+LEVER_SITES = {"CI&T": "ciandt"}
+BRASIL = re.compile(r"brazil|brasil|\bbr\b|latam|s[ãa]o paulo|florian[óo]polis|curitiba|campinas|porto alegre|belo horizonte|recife|bras[ií]lia|rio de janeiro|londrina|fortaleza|salvador|goi[âa]nia", re.I)
+
+def lever(slug, nome, limite):
+    lidas = recentes = cargo_br = 0
+    achadas = []
+    for skip in range(0, 1000, 100):
+        d = http(f"https://api.lever.co/v0/postings/{slug}?mode=json&limit=100&skip={skip}")
+        if not isinstance(d, list) or not d: break
+        for v in d:
+            lidas += 1
+            ts = v.get("createdAt")
+            if not ts: continue
+            pub = dt.datetime.fromtimestamp(ts / 1000 if ts > 1e11 else ts, dt.timezone.utc)
+            if pub < limite: continue
+            recentes += 1
+            cat = v.get("categories") or {}
+            local = ", ".join(dict.fromkeys(filter(None, [cat.get("location")] + list(cat.get("allLocations") or [])))) or ""
+            titulo = v.get("text") or ""
+            if not TITULO_OK.search(titulo): continue
+            if not BRASIL.search(f"{local} {titulo} {v.get('country') or ''}") and (v.get("country") or "").upper() != "BR": continue
+            cargo_br += 1
+            listas = " ".join(f"{l.get('text','')} {re.sub(r'<[^>]+>', ' ', l.get('content',''))}" for l in (v.get("lists") or []))
+            vaga = {"name": titulo, "jobUrl": v.get("hostedUrl", ""),
+                    "description": " ".join(filter(None, [v.get("descriptionPlain"), listas, v.get("additionalPlain")]))}
+            nota = aderencia(vaga)
+            if nota >= MIN_ADERENCIA:
+                achadas.append({"empresa": nome, "titulo": titulo,
+                    "local": local or (v.get("workplaceType") or "—").capitalize(),
+                    "publicada": pub.isoformat(), "aderencia": nota, "link": v.get("hostedUrl", "")})
+        if len(d) < 100: break
+    print(f"Lever {nome}: vagas lidas {lidas} | recentes {recentes} | cargo e Brasil {cargo_br} | com aderência >= {MIN_ADERENCIA}%: {len(achadas)}")
+    return achadas
+
 def main():
     limite = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=MAX_DIAS)
     vistas, cand = {}, {}
@@ -110,7 +145,11 @@ def main():
             final.append({"empresa": emp, "titulo": v["name"],
               "local": ", ".join(filter(None, [v.get("city"), v.get("state")])) or ("Remoto" if v.get("isRemoteWork") else "—"),
               "publicada": pub.isoformat(), "aderencia": nota, "link": v.get("jobUrl", "")})
-    final.sort(key=lambda x: -x["aderencia"])
+    for nome_l, slug_l in LEVER_SITES.items():
+        final.extend(lever(slug_l, nome_l, limite))
+    unicos = {}
+    for x in final: unicos.setdefault(x["link"] or x["titulo"], x)
+    final = sorted(unicos.values(), key=lambda x: -x["aderencia"])
     agora = dt.datetime.now(dt.timezone(dt.timedelta(hours=-3))).strftime("%d/%m/%Y %H:%M")
     print(f"Requisições ok: {erros['ok']} | falhas: {erros['n']} | vagas lidas: {len(vistas)} | "
           f"das empresas-alvo e recentes: {len(cand)} | com aderência >= {MIN_ADERENCIA}%: {len(final)}")
