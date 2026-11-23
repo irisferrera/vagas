@@ -4,7 +4,7 @@ publicadas há <= MAX_DIAS dias e com aderência >= MIN_ADERENCIA ao currículo 
 Regenera dashboard.html. Falha (exit 1) se a API não responder, para o GitHub ficar vermelho."""
 import json, re, sys, html, pathlib, datetime as dt, urllib.parse, urllib.request
 
-MAX_DIAS, MIN_ADERENCIA = 60, 80
+MAX_DIAS, MIN_ADERENCIA = 2, 80
 
 # nome exibido -> regex para casar com o nome da empresa/página de carreira no Gupy
 EMPRESAS = {
@@ -78,6 +78,8 @@ DEBUG = True  # mostra no log as vagas descartadas e o motivo (título, local ou
 LEVER_SITES = {"CI&T": "ciandt"}
 BRASIL = re.compile(r"brazil|brasil|\bbr\b|latam|h[íi]brido|remoto|s[ãa]o paulo|\bsp\b|osasco|barueri|santo andr[ée]|s[ãa]o bernardo|guarulhos|campinas|santos|sorocaba|jundia[íi]|ribeir[ãa]o preto|florian[óo]polis|joinville|blumenau|curitiba|londrina|maring[áa]|porto alegre|belo horizonte|uberl[âa]ndia|recife|bras[ií]lia|rio de janeiro|niter[óo]i|vit[óo]ria|salvador|fortaleza|goi[âa]nia|bel[ée]m|manaus|natal|macei[óo]", re.I)
 
+PARECIDO = re.compile(r"produ[ct]|business|neg[oó]cio|\bpo\b|\bpm\b|\bba\b|requisito|discovery|backlog", re.I)
+
 def _log_rejeitadas(rej, limite=60):
     if DEBUG and rej:
         print(f"  Descartadas ({len(rej)}), mostrando até {limite}:")
@@ -138,7 +140,8 @@ def greenhouse(token, nome, limite):
         recentes += 1
         titulo = v.get("title") or ""; local = (v.get("location") or {}).get("name", "")
         if not TITULO_OK.search(titulo):
-            rej.append(f"[título] {titulo} | {local}"); continue
+            if PARECIDO.search(titulo): rej.append(f"[título] {titulo} | {local}")  # só mostra cargos parecidos
+            continue
         if not BRASIL.search(f"{local} {titulo}"):
             rej.append(f"[local] {titulo} | {local}"); continue
         cargo_br += 1
