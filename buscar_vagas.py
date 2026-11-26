@@ -15,6 +15,7 @@ EMPRESAS = {
  "Omie": r"\bomie\b", "Asaas": r"\basaas\b", "Conta Azul": r"conta\s?azul|contaazul",
  "VTEX": r"\bvtex\b", "Sympla": r"\bsympla\b", "Grupo Boticário": r"botic[aá]rio",
  "Natura &Co": r"natura", "iFood": r"\bifood\b", "Dentsu": r"dentsu",
+ "Insi (antiga Meta)": r"\binsi\b|meta\s+(tecnologia|it)\b",
 }
 # Termos pesquisados no Gupy (uma busca por termo). Para incluir outro cargo, acrescente aqui E em TITULO_OK.
 CARGOS = ["product owner", "product manager", "business analyst", "analista de negócios",
