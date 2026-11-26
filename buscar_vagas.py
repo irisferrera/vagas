@@ -16,9 +16,17 @@ EMPRESAS = {
  "VTEX": r"\bvtex\b", "Sympla": r"\bsympla\b", "Grupo Boticário": r"botic[aá]rio",
  "Natura &Co": r"natura", "iFood": r"\bifood\b", "Dentsu": r"dentsu",
 }
-CARGOS = ["product owner", "product manager", "business analyst", "analista de negócios"]
-TITULO_OK = re.compile(r"product owner|\bpo\b|product manager|business analyst|analista de neg[oó]cios|\bpm\b|\bba\b", re.I)
-SENIORIDADE_RUIM = ["estágio","estagiário","trainee","júnior","junior","head","diretor","gerente"]
+# Termos pesquisados no Gupy (uma busca por termo). Para incluir outro cargo, acrescente aqui E em TITULO_OK.
+CARGOS = ["product owner", "product manager", "business analyst", "analista de negócios",
+          "product", "produto", "analista de produto", "especialista de produto", "gerente de produto", "analista de requisitos", "analista funcional"]
+TITULO_OK = re.compile(
+    r"product\s+(owner|manager|lead|specialist|analyst|operations|ops|management|strategist)"   # Product Owner / Manager / Lead / Specialist...
+    r"|digital\s+product|\bpo\b|\bp\.o\.|\bpm\b|\bba\b"
+    r"|(analista|especialista|gestor[a]?|coordenador[a]?|l[ií]der|consultor[a]?|gerente|pessoa|owner)\s+(de|do|em)\s+produtos?"  # Analista/Especialista/Líder de Produto
+    r"|\bprodutos?\s+(owner|manager|digital)"
+    r"|business\s+(analyst|systems?\s+analyst)|analista\s+(de|do)\s+neg[oó]cios?|analista\s+de\s+requisitos?|requirements?\s+analyst"
+    r"|analista\s+funcional|functional\s+analyst", re.I)
+SENIORIDADE_RUIM = ["estágio","estagiário","trainee","júnior","junior","head","diretor","diretora","vice-presidente"]  # "gerente" não penaliza mais
 TERMOS = {
  "product owner":3,"product manager":3,"business analyst":2,"analista de negócios":2,"backlog":2,
  "scrum":2,"kanban":1,"discovery":3,"dual-track":2,"mvp":2,"roadmap":2,"okr":1,
@@ -64,7 +72,7 @@ def aderencia(v):
     t = texto_da_vaga(v)
     ganho = sum(p for k, p in TERMOS.items() if k in t)
     nota = round(100 * ganho / sum(TERMOS.values()) * 2.2)
-    if any(s in (v.get("name") or "").lower() for s in SENIORIDADE_RUIM): nota -= 25
+    if any(s in (v.get("name") or "").lower() for s in SENIORIDADE_RUIM): return 0  # exclui estágio, júnior, head, diretor
     return max(0, min(100, nota))
 
 def empresa_alvo(v):
@@ -121,7 +129,7 @@ def lever(slug, nome, limite):
 
 # Empresas no Greenhouse (API pública, sem login): nome exibido -> tokens dos quadros em job-boards.greenhouse.io/<token>
 GREENHOUSE = {"iFood": ["ifoodcarreiras", "ifoodcampanhas"], "Zup Innovation": ["zupinnovation"],
-              "Thoughtworks": ["thoughtworks"], "VTEX": ["vtex"]}
+              "Thoughtworks": ["thoughtworks"], "VTEX": ["vtex"], "RD Station": ["rdstation"]}
 
 def greenhouse(token, nome, limite):
     d = http(f"https://boards-api.greenhouse.io/v1/boards/{token}/jobs?content=true")
